@@ -1,17 +1,52 @@
-const dotenv = require('dotenv');
 const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors'); // middleware function
+const cookieParser = require('cookie-parser');
 
-dotenv.config({ path: './config.env' });
-
-console.log(process.env);
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
+const userRouter = require('./routes/userRoutes');
 
 const app = express();
 
-app.get('/', (req, res) => {
-  res.status(200).send('Hello World!');
+// MIDDLEWARES
+app.use(
+  cors({
+    origin: ['http://192.168.0.30:8080', 'https://192.168.0.30:8080'],
+    credentials: true,
+    exposedHeaders: ['set-cookie'],
+  })
+);
+
+app.options('https://192.168.0.30:8080', cors());
+
+// morgan gives information about the HTTP requests in the console/terminal
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+app.use(express.json());
+
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  // console.log(req.headers);
+  console.log('Cookies:');
+  console.log(req.cookies);
+  next();
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`App running on port: http://127.0.0.1:${port}/`);
+// ROUTE HANDLERS
+
+// ROUTES
+app.use('/api/v1/users', userRouter);
+
+// catch all invalid routes
+app.all('*', (req, res, next) => {
+  next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
+app.use(globalErrorHandler);
+
+module.exports = app;
