@@ -17,7 +17,7 @@ app.use(
       'https://192.168.0.30:8080',
       'http://192.168.0.13:8080',
       'https://192.168.0.13:8080',
-      'https://manmetquickchat.herokuapp.com/',
+      'https://manmetquickchat.herokuapp.com',
     ],
     credentials: true,
     exposedHeaders: ['set-cookie'],
@@ -28,7 +28,7 @@ app.options(
   [
     'https://192.168.0.30:8080',
     'https://192.168.0.13:8080',
-    'https://manmetquickchat.herokuapp.com/',
+    'https://manmetquickchat.herokuapp.com',
   ],
   cors()
 );
