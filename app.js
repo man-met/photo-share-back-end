@@ -12,13 +12,26 @@ const app = express();
 // MIDDLEWARES
 app.use(
   cors({
-    origin: ['http://192.168.0.30:8080', 'https://192.168.0.30:8080'],
+    origin: [
+      'http://192.168.0.30:8080',
+      'https://192.168.0.30:8080',
+      'http://192.168.0.13:8080',
+      'https://192.168.0.13:8080',
+      'https://manmetquickchat.herokuapp.com/',
+    ],
     credentials: true,
     exposedHeaders: ['set-cookie'],
   })
 );
 
-app.options('https://192.168.0.30:8080', cors());
+app.options(
+  [
+    'https://192.168.0.30:8080',
+    'https://192.168.0.13:8080',
+    'https://manmetquickchat.herokuapp.com/',
+  ],
+  cors()
+);
 
 // morgan gives information about the HTTP requests in the console/terminal
 if (process.env.NODE_ENV === 'development') {
