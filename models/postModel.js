@@ -1,0 +1,30 @@
+const mongoose = require('mongoose');
+
+const postSchema = new mongoose.Schema({
+  postImage: {
+    type: String,
+    required: [true, 'A post must have an image!'],
+    unique: true,
+  },
+  caption: {
+    type: String,
+    maxLength: 2200,
+  },
+  likesQuantity: {
+    type: Number,
+    default: 0,
+  },
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'User',
+    required: [true, 'Review must belong to a user'],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const Post = mongoose.model('Post', postSchema);
+
+module.exports = Post;
