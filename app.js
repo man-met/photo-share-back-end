@@ -6,6 +6,7 @@ const cookieParser = require('cookie-parser');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
+const postRouter = require('./routes/postRoutes');
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use((req, res, next) => {
 
 // ROUTES
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/posts', postRouter);
 
 // catch all invalid routes
 app.all('*', (req, res, next) => {

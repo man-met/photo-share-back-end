@@ -36,7 +36,6 @@ const createSendToken = (user, statusCode, res) => {
 
   // Remove password from output
   user.password = undefined;
-
   // console.log(res);
 
   res.status(statusCode).json({
@@ -51,7 +50,7 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   // console.log('CHECK HEADERS ****************************************');
-  // console.log(req);
+  // console.log(req.body);
   // CRITICAL: req.body needs to change as anyone can assign the role of admin -> security flaw see vid - 128
   const newUser = await User.create(req.body);
   createSendToken(newUser, 201, res);
