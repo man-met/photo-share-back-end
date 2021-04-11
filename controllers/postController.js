@@ -23,16 +23,6 @@ const multerStorage = multerS3({
   },
 });
 
-// const multerStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'public/img/users/posts');
-//   },
-//   filename: (req, file, cb) => {
-//     const ext = file.mimetype.split('/')[1];
-//     cb(null, `test-${Date.now()}.${ext}`);
-//   },
-// });
-
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
     cb(null, true);
@@ -48,9 +38,7 @@ const upload = multer({
 });
 
 exports.createPost = async (req, res, next) => {
-  // console.log('💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥');
   // console.log(req.body);
-  // console.log('💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥');
   // console.log(req.file.location);
 
   const post = {
@@ -61,9 +49,22 @@ exports.createPost = async (req, res, next) => {
 
   const doc = await Post.create(post);
 
+  const data = [];
+
+  data.push(doc);
+
   res.status(201).json({
     status: 'success',
-    data: doc,
+    data: data,
+  });
+};
+
+exports.retrieveAllPosts = async (req, res, next) => {
+  const data = await Post.find();
+
+  res.status(200).json({
+    status: 'success',
+    data: data,
   });
 };
 
