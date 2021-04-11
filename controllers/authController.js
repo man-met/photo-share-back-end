@@ -60,7 +60,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
-  console.log(email, password);
+  // console.log(email, password);
 
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
@@ -226,7 +226,7 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 
 exports.isUserAuthenticated = catchAsync(async (req, res, next) => {
   // console.log(req.user);
-  console.log(req.cookies);
+  // console.log(req.cookies);
   createSendToken(req.user, 200, res);
 });
 

@@ -12,4 +12,10 @@ router.post(
   postController.createPost
 );
 
+router.get(
+  '/get-posts',
+  authController.protect,
+  postController.retrieveAllPosts
+);
+
 module.exports = router;
