@@ -68,4 +68,4 @@ exports.retrieveAllPosts = async (req, res, next) => {
   });
 };
 
-exports.uploadPostImage = upload.single('postImage');
+exports.uploadImage = upload.single('postImage');

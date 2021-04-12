@@ -26,7 +26,15 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
-  profile_photo: String,
+  photo: {
+    type: String,
+    default: 'img/default.jpeg',
+  },
+  bio: {
+    type: String,
+    maxLength: 150,
+    default: '',
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
