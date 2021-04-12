@@ -7,6 +7,7 @@ const filterObj = (obj, ...allowedFields) => {
   Object.keys(obj).forEach((el) => {
     if (allowedFields.includes(el)) newObj[el] = obj[el];
   });
+  return newObj;
 };
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
@@ -33,7 +34,27 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
-  const filteredBody = filterObj(req.body, 'name', 'email');
+  // check if it is working
+  console.log(req.body);
+
+  // set the file url to body photo
+  if (req.file) {
+    req.body.photo = req.file.location;
+  }
+
+  // pass the fields you want to be updated
+  const filteredBody = filterObj(
+    req.body,
+    'first_name',
+    'last_name',
+    'bio',
+    'photo'
+  );
+
+  console.log(filteredBody);
+
+  console.log('USER ID');
+  console.log(req.user.id);
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
     // new is set to true so it retrieves the new updated user instead of the old ones
@@ -43,9 +64,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: 'success',
-    data: {
-      user: updatedUser,
-    },
+    user: updatedUser,
   });
 });
 
