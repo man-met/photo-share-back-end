@@ -2,6 +2,7 @@ const multer = require('multer');
 const aws = require('aws-sdk');
 const multerS3 = require('multer-s3');
 
+const APIFeatures = require('./../utils/apiFeatures');
 const Post = require('./../models/postModel');
 
 aws.config.update({
@@ -60,7 +61,23 @@ exports.createPost = async (req, res, next) => {
 };
 
 exports.retrieveAllPosts = async (req, res, next) => {
-  const data = await Post.find();
+  let filter = {};
+  // console.log(req.query);
+
+  if (req.params.userId) {
+    filter = { user: req.params.userId };
+  }
+
+  const features = new APIFeatures(Post.find(filter), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+  // console.log('Query: ', features.query);
+  const data = await features.query;
+
+  // console.log('Query results:');
+  // console.log(data);
 
   res.status(200).json({
     status: 'success',
