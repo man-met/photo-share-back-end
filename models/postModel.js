@@ -25,6 +25,15 @@ const postSchema = new mongoose.Schema({
   },
 });
 
+postSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'user',
+    // to select only relevant data.
+    select: 'first_name last_name photo',
+  });
+  next();
+});
+
 const Post = mongoose.model('Post', postSchema);
 
 module.exports = Post;
