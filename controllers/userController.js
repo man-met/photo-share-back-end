@@ -11,15 +11,41 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  const users = await User.find();
+  const users = await User.aggregate([
+    {
+      $match: {
+        $or: [
+          {
+            first_name: {
+              $regex: req.query.searchKeyword,
+              $options: 'i',
+            },
+          },
+          {
+            last_name: {
+              $regex: req.query.searchKeyword,
+              $options: 'i',
+            },
+          },
+          {
+            email: {
+              $regex: req.query.searchKeyword,
+              $options: 'i',
+            },
+          },
+        ],
+      },
+    },
+    { $unset: ['active', 'password', 'role', '__v'] },
+  ]);
+
+  // console.log(req.query.searchKeyword);
 
   // SEND RESPONSE
   res.status(200).json({
     status: 'success',
-    results: users.length,
-    data: {
-      users,
-    },
+    // results: users.length,
+    users: users,
   });
 });
 
