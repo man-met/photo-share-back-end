@@ -106,7 +106,9 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-  let query = User.findOne({ email: req.params.id });
+  // let query = User.findOne({ email: req.params.id });
+
+  let query = User.findOne({ _id: req.params.id });
   // if (popOptions) query = query.populate(popOptions);
   const doc = await query;
 
@@ -117,7 +119,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     data: {
-      data: doc,
+      user: doc,
     },
   });
 });
