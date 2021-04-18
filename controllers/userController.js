@@ -1,6 +1,7 @@
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
+const { escapeRegExp } = require('./../utils/utils');
 
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
@@ -11,31 +12,41 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
+  // TASK: Remove the logged in user from the query result
   const users = await User.aggregate([
     {
       $match: {
-        $or: [
+        $and: [
           {
-            first_name: {
-              $regex: req.query.searchKeyword,
-              $options: 'i',
-            },
+            $or: [
+              {
+                first_name: {
+                  $regex: escapeRegExp(req.query.searchKeyword),
+                  $options: 'i',
+                },
+              },
+              {
+                last_name: {
+                  $regex: escapeRegExp(req.query.searchKeyword),
+                  $options: 'i',
+                },
+              },
+              {
+                email: {
+                  $regex: escapeRegExp(req.query.searchKeyword),
+                  $options: 'i',
+                },
+              },
+            ],
           },
+          // exclude the current logged in user
           {
-            last_name: {
-              $regex: req.query.searchKeyword,
-              $options: 'i',
-            },
-          },
-          {
-            email: {
-              $regex: req.query.searchKeyword,
-              $options: 'i',
-            },
+            _id: { $ne: req.user._id },
           },
         ],
       },
     },
+    // remove the following fields from the result
     { $unset: ['active', 'password', 'role', '__v'] },
   ]);
 
