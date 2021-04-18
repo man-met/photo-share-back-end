@@ -17,7 +17,7 @@ const postSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.ObjectId,
     ref: 'User',
-    required: [true, 'Review must belong to a user'],
+    required: [true, 'A post must belong to a user'],
   },
   createdAt: {
     type: Date,
