@@ -1,4 +1,6 @@
 const Comment = require('./../models/commentModel');
+const Post = require('./../models/postModel');
+const APIFeatures = require('./../utils/apiFeatures');
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 
@@ -11,8 +13,48 @@ exports.submitComment = catchAsync(async (req, res, next) => {
 
   const doc = await Comment.create(data);
 
+  if (!doc) {
+    return next(new AppError('There was an error!', 500));
+  }
+
+  const docUpdated = await Post.findByIdAndUpdate(
+    req.body.postId,
+    { last_comment: doc._id },
+    {
+      // new is set to true so it retrieves the new updated user instead of the old ones
+      new: true,
+      runValidators: true,
+    }
+  );
+
+  if (!docUpdated) {
+    return next(new AppError('There was an error!', 500));
+  }
+
   res.status(201).json({
     status: 'success',
     data: doc,
+  });
+});
+
+exports.getComments = catchAsync(async (req, res, next) => {
+  let filter = {};
+
+  if (req.query.postId) {
+    filter = { post: req.query.postId };
+    delete req.query.postId;
+  }
+
+  const features = new APIFeatures(Comment.find(filter), req.query)
+    .filter()
+    .sort()
+    .limitFields()
+    .paginate();
+
+  const docs = await features.query;
+
+  res.status(200).json({
+    status: 'success',
+    data: docs,
   });
 });

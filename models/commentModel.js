@@ -23,6 +23,16 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
+commentSchema.pre(/^find/, function (next) {
+  // this points to the current query
+  this.populate({
+    path: 'user',
+    select: 'first_name last_name photo',
+  });
+
+  next();
+});
+
 commentSchema.index({ createdAt: -1 });
 
 const Comment = mongoose.model('Comment', commentSchema);
