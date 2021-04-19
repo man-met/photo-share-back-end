@@ -19,20 +19,20 @@ const createSendToken = (user, statusCode, res) => {
   // console.log('***************** TOKEN ****************');
   // console.log(token);
 
-  const cookieOptions = {
-    // cookie expires in
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-    secure: true,
-    sameSite: 'None',
-  };
+  // const cookieOptions = {
+  //   // cookie expires in
+  //   expires: new Date(
+  //     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  //   ),
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: 'None',
+  // };
   // CRITICAL: You must check that when the cookie expires, does it not authenticate the user. If it does find out how to make sure it is deleted when it expires
 
   // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
-  res.cookie('jwt', token, cookieOptions);
+  // res.cookie('jwt', token, cookieOptions);
 
   // Remove password from output
   user.password = undefined;
@@ -41,7 +41,7 @@ const createSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     // INFO: token is not sent anymore as it is stored in the cookie
-    // token,
+    token,
     data: {
       user,
     },
@@ -79,15 +79,17 @@ exports.login = catchAsync(async (req, res, next) => {
 
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Get the token check if it is there
+  console.log(req.headers);
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
   }
+  // } else if (req.cookies.jwt) {
+  //   token = req.cookies.jwt;
+  // }
   // console.log(token);
 
   if (token === 'loggedout' || !token) {
