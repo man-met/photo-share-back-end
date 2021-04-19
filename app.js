@@ -8,6 +8,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
 const postRouter = require('./routes/postRoutes');
 const followerRouter = require('./routes/followerRoutes');
+const commentRouter = require('./routes/commentRoutes');
 
 const app = express();
 
@@ -57,9 +58,10 @@ app.use((req, res, next) => {
 // ROUTE HANDLERS
 
 // ROUTES
-app.use('/api/v1/followers', followerRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/posts', postRouter);
+app.use('/api/v1/followers', followerRouter);
+app.use('/api/v1/comment', commentRouter);
 
 // catch all invalid routes
 app.all('*', (req, res, next) => {

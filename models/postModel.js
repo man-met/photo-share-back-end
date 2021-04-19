@@ -10,6 +10,10 @@ const postSchema = new mongoose.Schema({
     type: String,
     maxLength: 2200,
   },
+  last_comment: {
+    type: mongoose.Schema.ObjectId,
+    ref: 'Comment',
+  },
   likesQuantity: {
     type: Number,
     default: 0,
@@ -30,6 +34,14 @@ postSchema.pre(/^find/, function (next) {
     path: 'user',
     // to select only relevant data.
     select: 'first_name last_name photo email',
+  }).populate({
+    path: 'last_comment',
+    select: '_id post user comment createdAt',
+    populate: {
+      path: 'user',
+      model: 'User',
+      select: 'first_name last_name photo',
+    },
   });
   next();
 });
