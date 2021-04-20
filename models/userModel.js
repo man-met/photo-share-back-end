@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 
-// create a user schema
 const userSchema = new mongoose.Schema({
   first_name: {
     type: String,
@@ -28,7 +27,8 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'img/default.jpeg',
+    default:
+      'https://quickchat.s3.eu-west-2.amazonaws.com/users/607b15e1ab8519c9f66bb128/607b15e1ab8519c9f66bb128-1618933355707.jpeg',
   },
   bio: {
     type: String,
@@ -44,34 +44,27 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'User must enter a password!'],
     minLength: 8,
-    // INFO: select is set to false so it does not add in to the response body when a user makes a request.
     select: false,
   },
   password_confirm: {
     type: String,
     required: [true, 'Please confirm the password!'],
     validata: {
-      // this only works on CREATE & SAVE
       validator: function (el) {
         return el === this.password;
       },
       message: 'Passwords should match!',
     },
   },
-  // last time password changed
   passwordChangedAt: {
     type: Date,
   },
-  // INFO: password Rest token and password reset expires work together
-  // stores the password reset token
   passwordResetToken: {
     type: String,
   },
-  // save when the reset password token expires
   passwordResetExpires: {
     type: Date,
   },
-  // check if the user account has been deleted
   active: {
     type: Boolean,
     default: true,
@@ -80,13 +73,10 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) {
-  // check if the password has been modified in the current document
   if (!this.isModified('password')) return next();
 
-  // hash the password using bcrypt module
   this.password = await bcrypt.hash(this.password, 12);
 
-  // delete confirm password after password checked and confirmed
   this.password_confirm = undefined;
 
   next();
@@ -100,12 +90,10 @@ userSchema.pre('save', function (next) {
 });
 
 userSchema.pre(/^find/, function (next) {
-  // this points to the current query
   this.find({ active: { $ne: false } });
   next();
 });
 
-// INFO: Instance Method DEFINITION: A method that is available in all the documents of a certain collection
 userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword
@@ -121,7 +109,6 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     );
     return JWTTimestamp < changedTimestamp;
   }
-  // false means that the user did not changed the password
   return false;
 };
 
@@ -133,8 +120,6 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest('hex');
 
-  // console.log({ resetToken }, this.passwordResetToken);
-  // add the time amount after the password reset token expires
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;
