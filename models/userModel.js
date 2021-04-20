@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema({
   },
   photo: {
     type: String,
-    default: 'img/default.jpeg',
+    default:
+      'https://quickchat.s3.eu-west-2.amazonaws.com/users/607b15e1ab8519c9f66bb128/607b15e1ab8519c9f66bb128-1618933355707.jpeg',
   },
   bio: {
     type: String,
