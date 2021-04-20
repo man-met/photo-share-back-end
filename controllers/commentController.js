@@ -21,7 +21,6 @@ exports.submitComment = catchAsync(async (req, res, next) => {
     req.body.postId,
     { last_comment: doc._id },
     {
-      // new is set to true so it retrieves the new updated user instead of the old ones
       new: true,
       runValidators: true,
     }

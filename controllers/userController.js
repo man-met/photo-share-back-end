@@ -12,7 +12,6 @@ const filterObj = (obj, ...allowedFields) => {
 };
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
-  // TASK: Remove the logged in user from the query result
   const users = await User.aggregate([
     {
       $match: {
@@ -39,29 +38,22 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
               },
             ],
           },
-          // exclude the current logged in user
           {
             _id: { $ne: req.user._id },
           },
         ],
       },
     },
-    // remove the following fields from the result
     { $unset: ['active', 'password', 'role', '__v'] },
   ]);
 
-  // console.log(req.query.searchKeyword);
-
-  // SEND RESPONSE
   res.status(200).json({
     status: 'success',
-    // results: users.length,
     users: users,
   });
 });
 
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // Create error if user posts password data.
   if (req.body.password || req.body.password_confirm) {
     return next(
       new AppError(
@@ -71,15 +63,12 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     );
   }
 
-  // check if it is working
   console.log(req.body);
 
-  // set the file url to body photo
   if (req.file) {
     req.body.photo = req.file.location;
   }
 
-  // pass the fields you want to be updated
   const filteredBody = filterObj(
     req.body,
     'first_name',
@@ -94,7 +83,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   console.log(req.user.id);
 
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, {
-    // new is set to true so it retrieves the new updated user instead of the old ones
     new: true,
     runValidators: true,
   });
@@ -106,8 +94,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteMe = catchAsync(async (req, res, next) => {
-  // await User.findByIdAndUpdate(req.user.id, { active: false });
-
   await User.findByIdAndDelete(req.user.id);
 
   res.status(204).json({
@@ -117,10 +103,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getUser = catchAsync(async (req, res, next) => {
-  // let query = User.findOne({ email: req.params.id });
-
   let query = User.findOne({ _id: req.params.id });
-  // if (popOptions) query = query.populate(popOptions);
   const doc = await query;
 
   if (!doc) {
