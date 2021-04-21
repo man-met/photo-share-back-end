@@ -4,8 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const Email = require('./../utils/email');
-const { check } = require('prettier');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -30,8 +28,6 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   const emailExists = await User.findOne({ email: req.body.email });
-
-  console.log(emailExists);
 
   if (emailExists) {
     res.status(409).json({
