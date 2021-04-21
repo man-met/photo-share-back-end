@@ -8,6 +8,7 @@ const router = express.Router();
 router.post(
   '/create-post',
   authController.protect,
+  // SUGGESTION: You might want to pass the url where the image is stored as you will need to pass one for profile picture
   postController.uploadImage,
   postController.createPost
 );
