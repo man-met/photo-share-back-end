@@ -15,10 +15,31 @@ const signToken = (id) => {
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
 
+  // console.log('***************** TOKEN ****************');
+  // console.log(token);
+
+  // const cookieOptions = {
+  //   // cookie expires in
+  //   expires: new Date(
+  //     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  //   ),
+  //   httpOnly: true,
+  //   secure: true,
+  //   sameSite: 'None',
+  // };
+  // CRITICAL: You must check that when the cookie expires, does it not authenticate the user. If it does find out how to make sure it is deleted when it expires
+
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+
+  // res.cookie('jwt', token, cookieOptions);
+
   // Remove password from output
   user.password = undefined;
+  // console.log(res);
+
   res.status(statusCode).json({
     status: 'success',
+    // INFO: token is not sent anymore as it is stored in the cookie
     token,
     data: {
       user,
@@ -38,15 +59,19 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   const newUser = await User.create(req.body);
   createSendToken(newUser, 201, res);
+  // SUGGESTION: There is no special route for creating admins so the user will have to change it manually in the database
 });
 
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
+  // console.log(email, password);
+
   if (!email || !password) {
     return next(new AppError('Please provide email and password!', 400));
   }
 
+  // INFO: int the brackets it should be email = email but as ES6 syntax allows we can only put email.
   const user = await User.findOne({ email }).select('+password'); // check if the user exists
 
   // check if the passwords match
@@ -67,6 +92,10 @@ exports.protect = catchAsync(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(' ')[1];
   }
+  // } else if (req.cookies.jwt) {
+  //   token = req.cookies.jwt;
+  // }
+  // console.log(token);
 
   if (token === 'loggedout' || !token) {
     res.status(200).json({
@@ -81,6 +110,8 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
   // 2) Verify the token if someone has manipulated or is expired
+  // console.log(token);
+  // console.log(process.env.JWT_SECRET);
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
   console.log(decoded);
 
@@ -94,6 +125,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // 4) If user changed password after JWT Token was issued
+  // INFO: passes the timestamp that is decoded from the JWT token
   if (freshUser.changedPasswordAfter(decoded.iat)) {
     return next(
       new AppError('Recently changed password! Please log in again'),
@@ -107,6 +139,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
 exports.restrictTo = (...roles) => {
   return (req, res, next) => {
+    // roles ['admin', 'lead-guide']. role='user'
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError('You do not have permission to perform this action', 403)
@@ -118,6 +151,7 @@ exports.restrictTo = (...roles) => {
 };
 
 exports.forgotPassword = catchAsync(async (req, res, next) => {
+  // 1) Get user based on POSTed email
   const user = await User.findOne({ email: req.body.email });
   if (!user) {
     return next(new AppError('There is no user with email address.', 404));
@@ -125,6 +159,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   // 2) Generate the random reset token
   const resetToken = user.createPasswordResetToken();
+  // disable all the validators
   await user.save({ validateBeforeSave: false });
 
   // 3) Send it to user's email
@@ -190,12 +225,15 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
+  // User.findByIdAndUpdate will NOT work as intended!
 
   // 4) Log user in, send JWT
   createSendToken(user, 200, req, res);
 });
 
 exports.isUserAuthenticated = catchAsync(async (req, res, next) => {
+  // console.log(req.user);
+  // console.log(req.cookies);
   createSendToken(req.user, 200, res);
 });
 

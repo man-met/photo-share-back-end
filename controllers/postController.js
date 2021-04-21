@@ -28,6 +28,7 @@ const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
     cb(null, true);
   } else {
+    // CRITICAL: make sure you change from null to APPERROR once it works
     cb(null, false);
   }
 };
@@ -38,6 +39,9 @@ const upload = multer({
 });
 
 exports.createPost = async (req, res, next) => {
+  // console.log(req.body);
+  // console.log(req.file.location);
+
   const post = {
     postImage: req.file.location,
     caption: req.body.caption,
@@ -58,6 +62,7 @@ exports.createPost = async (req, res, next) => {
 
 exports.retrieveAllPosts = async (req, res, next) => {
   let filter = {};
+  // console.log(req.query);
 
   if (req.params.userId) {
     filter = { user: req.params.userId };
@@ -68,7 +73,11 @@ exports.retrieveAllPosts = async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
+  // console.log('Query: ', features.query);
   const data = await features.query;
+
+  // console.log('Query results:');
+  // console.log(data);
 
   res.status(200).json({
     status: 'success',
