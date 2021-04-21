@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const Email = require('./../utils/email');
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -49,9 +48,15 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  // console.log('CHECK HEADERS ****************************************');
-  // console.log(req.body);
-  // CRITICAL: req.body needs to change as anyone can assign the role of admin -> security flaw see vid - 128
+  const emailExists = await User.findOne({ email: req.body.email });
+
+  if (emailExists) {
+    res.status(409).json({
+      status: 'Conflict',
+    });
+    return;
+  }
+
   const newUser = await User.create(req.body);
   createSendToken(newUser, 201, res);
   // SUGGESTION: There is no special route for creating admins so the user will have to change it manually in the database
