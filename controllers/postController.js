@@ -4,6 +4,7 @@ const multerS3 = require('multer-s3');
 
 const APIFeatures = require('./../utils/apiFeatures');
 const Post = require('./../models/postModel');
+const pushNotificationController = require('../controllers/pushNotificationController');
 
 aws.config.update({
   secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -53,6 +54,8 @@ exports.createPost = async (req, res, next) => {
   const data = [];
 
   data.push(doc);
+
+  pushNotificationController.sendNotification();
 
   res.status(201).json({
     status: 'success',
