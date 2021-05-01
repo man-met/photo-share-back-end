@@ -22,6 +22,17 @@ exports.startFollowing = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.stopFollowing = catchAsync(async (req, res, next) => {
+  // console.log(req.body);
+
+  await Follower.findByIdAndDelete(req.body.documentId);
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
+
 exports.getFollowersData = catchAsync(async (req, res, next) => {
   console.log(req.user);
 
