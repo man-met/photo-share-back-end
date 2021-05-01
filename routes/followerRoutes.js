@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.get('/', authController.protect, followerController.getFollowersData);
 router.post('/', authController.protect, followerController.startFollowing);
+router.delete('/', authController.protect, followerController.stopFollowing);
 
 module.exports = router;
