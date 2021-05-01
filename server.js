@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+const AppError = require('./utils/appError');
+
 // If there is an uncaughtException, it will throw an error and shut down the server
 process.on('uncaughtException', (err) => {
   console.log(err);
@@ -37,6 +39,9 @@ app.listen(port, () => {
 
 // catch all unhandledRejections and shut down the server
 process.on('unhandledRejection', (err) => {
+  if (err.name === 'WebPushError') {
+    return console.log('The subscriber does not exist anymore!');
+  }
   console.log('UNHANDLED REJECTTION! Shutting down...');
   console.log(err.name, err.message);
   server.close(() => {

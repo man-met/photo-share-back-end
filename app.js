@@ -9,6 +9,7 @@ const userRouter = require('./routes/userRoutes');
 const postRouter = require('./routes/postRoutes');
 const followerRouter = require('./routes/followerRoutes');
 const commentRouter = require('./routes/commentRoutes');
+const pushNotificationRouter = require('./routes/pushNotificationRoutes');
 
 const app = express();
 
@@ -59,6 +60,7 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/posts', postRouter);
 app.use('/api/v1/followers', followerRouter);
 app.use('/api/v1/comment', commentRouter);
+app.use('/api/v1/push-notification', pushNotificationRouter);
 
 // catch all invalid routes
 app.all('*', (req, res, next) => {
